@@ -1,0 +1,15 @@
+# Java
+target/
+*.class
+.mvn/
+mvnw
+mvnw.cmd
+
+# Node
+node_modules/
+build/
+.env
+
+# IDE
+.idea/
+.vscode/git
