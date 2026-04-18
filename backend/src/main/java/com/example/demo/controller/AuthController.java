@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "https://task-manager-six-murex-90.vercel.app")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {

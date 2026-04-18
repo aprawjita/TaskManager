@@ -21,9 +21,9 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@CrossOrigin(origins = "https://task-manager-six-murex-90.vercel.app")
 @RestController
 @RequestMapping("/api/tasks")
-@CrossOrigin(origins = "http://localhost:3000")
 public class TaskController {
 
     @Autowired
