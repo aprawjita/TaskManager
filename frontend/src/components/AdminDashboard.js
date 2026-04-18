@@ -16,7 +16,7 @@ function AdminDashboard() {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/admin/users', getAuthHeaders());
+      const response = await axios.get('https://taskmanager-backend-5f96.onrender.com/api/admin/users', getAuthHeaders());
       setUsers(response.data);
     } catch (error) {
       if (error.response && (error.response.status === 403 || error.response.status === 401)) {
@@ -27,7 +27,7 @@ function AdminDashboard() {
 
   const handleDeleteUser = async (id) => {
     try {
-      await axios.delete(`http://localhost:8080/api/admin/users/${id}`, getAuthHeaders());
+      await axios.delete(`https://taskmanager-backend-5f96.onrender.com/api/admin/users/${id}`, getAuthHeaders());
       fetchUsers();
     } catch (error) {
       console.error(error);

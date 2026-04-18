@@ -72,12 +72,12 @@ cd backend
 ```
 
 Backend runs at:
-http://localhost:8080
+https://taskmanager-backend-5f96.onrender.com
 
 ### 3. View API Documentation
 
 Open in browser:
-http://localhost:8080/swagger-ui/index.html
+https://taskmanager-backend-5f96.onrender.com/swagger-ui/index.html
 
 ### 4. Start the React Frontend
 

@@ -21,7 +21,7 @@ function Dashboard() {
       if (filterPriority) params.append('priority', filterPriority);
       params.append('sortBy', sortField);
 
-      const response = await axios.get(`http://localhost:8080/api/tasks?${params.toString()}`, {
+      const response = await axios.get(`https://taskmanager-backend-5f96.onrender.com/api/tasks?${params.toString()}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setTasks(response.data);
@@ -44,7 +44,7 @@ function Dashboard() {
     for (let i = 0; i < files.length; i++) formData.append('files', files[i]);
 
     try {
-      await axios.post('http://localhost:8080/api/tasks', formData, {
+      await axios.post('https://taskmanager-backend-5f96.onrender.com/api/tasks', formData, {
         headers: { 
           Authorization: `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'multipart/form-data'
@@ -103,7 +103,7 @@ function Dashboard() {
             <p>{task.description}</p>
             <p>Due: {task.dueDate || 'No date'}</p>
             {task.attachedDocuments?.map((doc, i) => (
-              <a key={i} href={`http://localhost:8080/api/tasks/files/${doc}`} target="_blank" rel="noreferrer">PDF {i+1} </a>
+              <a key={i} href={`https://taskmanager-backend-5f96.onrender.com/api/tasks/files/${doc}`} target="_blank" rel="noreferrer">PDF {i+1} </a>
             ))}
           </div>
         ))}
