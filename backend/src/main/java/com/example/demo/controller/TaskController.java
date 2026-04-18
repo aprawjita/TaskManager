@@ -58,12 +58,12 @@ public class TaskController {
             })
             .collect(Collectors.toList());
     }
-
+    
+    
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Task createTask(
             @RequestParam("title") String title,
             @RequestParam(value = "description", required = false) String description,
-            @RequestParam(value = "assignedTo", required = false) String assignedTo,
             @RequestParam(value = "priority", required = false) String priority,
             @RequestParam(value = "dueDate", required = false) String dueDate,
             @RequestParam(value = "files", required = false) MultipartFile[] files,
@@ -71,24 +71,34 @@ public class TaskController {
 
         Task task = new Task();
         task.setTitle(title);
-        task.setDescription(description);
+        task.setDescription(description != null ? description : "");
         task.setStatus("TODO");
         task.setPriority(priority != null ? priority : "MEDIUM");
-        task.setDueDate(dueDate);
-        task.setAssignedTo((assignedTo != null && !assignedTo.isEmpty()) ? assignedTo : authentication.getName());
+        
+        
+        if (dueDate != null && !dueDate.isEmpty()) {
+            task.setDueDate(dueDate);
+        }
+
+        
+        task.setAssignedTo(authentication.getName());
 
         List<String> savedFiles = new ArrayList<>();
         if (files != null && files.length > 0) {
             try {
                 Path uploadPath = Paths.get(UPLOAD_DIR);
                 if (!Files.exists(uploadPath)) Files.createDirectories(uploadPath);
+                
                 for (MultipartFile file : files) {
-                    String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-                    Files.copy(file.getInputStream(), uploadPath.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
-                    savedFiles.add(fileName);
+                    if (!file.isEmpty()) {
+                        String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+                        Files.copy(file.getInputStream(), uploadPath.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
+                        savedFiles.add(fileName);
+                    }
                 }
             } catch (Exception e) {
-                throw new RuntimeException("File upload failed", e);
+                // Log the error but don't crash the whole task creation if upload fails
+                System.err.println("File upload failed: " + e.getMessage());
             }
         }
 
@@ -106,8 +116,12 @@ public class TaskController {
         try {
             Path filePath = Paths.get(UPLOAD_DIR).resolve(fileName).normalize();
             Resource resource = new UrlResource(filePath.toUri());
+            
+            if (!resource.exists()) return ResponseEntity.notFound().build();
+
             return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                    .contentType(MediaType.APPLICATION_PDF) // Assuming PDFs for your demo
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
                     .body(resource);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
