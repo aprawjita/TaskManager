@@ -21,8 +21,12 @@ function Dashboard() {
       if (filterPriority) params.append('priority', filterPriority);
       params.append('sortBy', sortField);
 
+      // The 403 Fix: Grabbing the token and sending it with the request
+      const token = localStorage.getItem('token'); 
       const response = await axios.get(`https://taskmanager-backend-5f96.onrender.com/api/tasks?${params.toString()}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        headers: { 
+          'Authorization': `Bearer ${token}` 
+        }
       });
       setTasks(response.data);
     } catch (error) {
