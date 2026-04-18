@@ -33,10 +33,14 @@ public class SecurityConfig {
         return http.build();
     }
 
+    
     @Bean
+    public org.springframework.security.crypto.password.PasswordEncoder passwordEncoder() {
+    return new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
+   }
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Explicitly allow your Vercel frontend
+       
         configuration.setAllowedOrigins(Arrays.asList("https://task-manager-six-murex-90.vercel.app"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
