@@ -8,6 +8,7 @@ function Dashboard() {
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState('MEDIUM');
   const [dueDate, setDueDate] = useState('');
+  const [files, setFiles] = useState([]);
   const [filterStatus, setFilterStatus] = useState('');
   const [filterPriority, setFilterPriority] = useState('');
   const [sortField, setSortField] = useState('id');
@@ -38,27 +39,32 @@ function Dashboard() {
 
   const handleCreateTask = async (e) => {
     e.preventDefault();
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('description', description);
+    formData.append('priority', priority);
     
-    // EMERGENCY FIX: Sending standard JSON instead of multipart/form-data
-    const taskData = {
-      title: title,
-      description: description,
-      priority: priority,
-      dueDate: dueDate
-    };
+    
+    if (dueDate) {
+        formData.append('dueDate', dueDate);
+    }
+    
+    for (let i = 0; i < files.length; i++) {
+        formData.append('files', files[i]);
+    }
 
     try {
-      await axios.post('https://taskmanager-backend-5f96.onrender.com/api/tasks', taskData, {
+      await axios.post('https://taskmanager-backend-5f96.onrender.com/api/tasks', formData, {
         headers: { 
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'multipart/form-data'
         }
       });
-      setTitle(''); setDescription(''); setDueDate('');
+      setTitle(''); setDescription(''); setFiles([]); setDueDate('');
       fetchTasks();
     } catch (error) {
-      console.error("Task creation failed", error.response);
-      alert("Error creating task. Check console for details.");
+      console.error(error);
+      alert("Error creating task. Make sure all fields are filled!");
     }
   };
 
@@ -71,13 +77,14 @@ function Dashboard() {
       
       <form onSubmit={handleCreateTask} className="task-form">
         <input type="text" placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} required />
-        <textarea placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
+        <textarea placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} required />
         <select value={priority} onChange={(e) => setPriority(e.target.value)}>
           <option value="HIGH">High</option>
           <option value="MEDIUM">Medium</option>
           <option value="LOW">Low</option>
         </select>
-        <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+        <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} required />
+        <input type="file" multiple accept="application/pdf" onChange={(e) => setFiles(e.target.files)} />
         <button type="submit">Add Task</button>
       </form>
 
