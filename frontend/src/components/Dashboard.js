@@ -8,7 +8,6 @@ function Dashboard() {
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState('MEDIUM');
   const [dueDate, setDueDate] = useState('');
-  const [files, setFiles] = useState([]);
   const [filterStatus, setFilterStatus] = useState('');
   const [filterPriority, setFilterPriority] = useState('');
   const [sortField, setSortField] = useState('id');
@@ -21,7 +20,6 @@ function Dashboard() {
       if (filterPriority) params.append('priority', filterPriority);
       params.append('sortBy', sortField);
 
-      // The 403 Fix: Grabbing the token and sending it with the request
       const token = localStorage.getItem('token'); 
       const response = await axios.get(`https://taskmanager-backend-5f96.onrender.com/api/tasks?${params.toString()}`, {
         headers: { 
@@ -40,24 +38,27 @@ function Dashboard() {
 
   const handleCreateTask = async (e) => {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append('title', title);
-    formData.append('description', description);
-    formData.append('priority', priority);
-    formData.append('dueDate', dueDate);
-    for (let i = 0; i < files.length; i++) formData.append('files', files[i]);
+    
+    // EMERGENCY FIX: Sending standard JSON instead of multipart/form-data
+    const taskData = {
+      title: title,
+      description: description,
+      priority: priority,
+      dueDate: dueDate
+    };
 
     try {
-      await axios.post('https://taskmanager-backend-5f96.onrender.com/api/tasks', formData, {
+      await axios.post('https://taskmanager-backend-5f96.onrender.com/api/tasks', taskData, {
         headers: { 
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'multipart/form-data'
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
         }
       });
-      setTitle(''); setDescription(''); setFiles([]); setDueDate('');
+      setTitle(''); setDescription(''); setDueDate('');
       fetchTasks();
     } catch (error) {
-      alert("Error creating task");
+      console.error("Task creation failed", error.response);
+      alert("Error creating task. Check console for details.");
     }
   };
 
@@ -77,7 +78,6 @@ function Dashboard() {
           <option value="LOW">Low</option>
         </select>
         <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
-        <input type="file" multiple accept="application/pdf" onChange={(e) => setFiles(e.target.files)} />
         <button type="submit">Add Task</button>
       </form>
 
@@ -103,7 +103,7 @@ function Dashboard() {
       <div className="task-list">
         {tasks.map(task => (
           <div key={task.id} className="task-card">
-            <h3>{task.title} <span className={`badge ${task.priority.toLowerCase()}`}>{task.priority}</span></h3>
+            <h3>{task.title} <span className={`badge ${task.priority?.toLowerCase()}`}>{task.priority}</span></h3>
             <p>{task.description}</p>
             <p>Due: {task.dueDate || 'No date'}</p>
             {task.attachedDocuments?.map((doc, i) => (
